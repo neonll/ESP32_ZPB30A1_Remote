@@ -30,4 +30,4 @@ add_custom_target(
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_executable(Z_DUMMY_TARGET ${SRC_LIST} src/LoadPoint.cpp src/LoadPoint.h)
+add_executable(Z_DUMMY_TARGET ${SRC_LIST} src/LoadPoint.cpp src/LoadPoint.h src/LoadRx.cpp src/LoadRx.h src/LoadState.cpp src/LoadState.h src/LoadSettings.cpp src/LoadSettings.h src/Timestamp.cpp src/Timestamp.h)

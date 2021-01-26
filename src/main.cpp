@@ -27,6 +27,10 @@ WiFiMulti wifiMulti;
 // Use LittleFS
 #include "FS.h"
 #include "LoadPoint.h"
+#include "LoadState.h"
+#include "Timestamp.h"
+
+
 
 // The library will be depreciated after being merged to future major Arduino esp32 core release 2.x
 // At that time, just remove this library inclusion
@@ -755,32 +759,52 @@ void setup()
 
     digitalWrite(LED_BUILTIN, LED_OFF);
 
+//    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+//    printLocalTime();
+    Timestamp t;
+    t.init();
+
+    Serial.println(timestamp());
+
+//    WiFi.disconnect(true);
+//    WiFi.mode(WIFI_OFF);
+
 }
 
 String LoadRx;
 byte T = 0;
 
+LoadState State;
+
 void loop()
 {
-    check_status();
+//    check_status();
 
-    while (Serial1.available()) {
+    delay(1000);
+    Serial.println(millis());
+    Serial.println(timestamp());
+//    Serial.println(time());
 
-        LoadRx = Serial1.readStringUntil('\n');
-
-        if (T == 10) {
-            LoadPoint currentState{};
-
-            Serial.println(LoadRx);
-
-            currentState.fill(LoadRx);
-
-            currentState.printSerial(Serial);
-
-            T = 0;
-        } else {
-            T++;
-        }
-
-    }
+//
+//    while (Serial1.available()) {
+//
+//        LoadRx = Serial1.readStringUntil('\n');
+//
+//        if (T == 10) {
+////            LoadPoint currentState{};
+//
+//            Serial.println(LoadRx);
+//
+////            currentState.fill(LoadRx);
+////            currentState.printSerial(Serial);
+//
+//            State.point.fill(LoadRx);
+//            State.point.printSerial(Serial);
+//
+//            T = 0;
+//        } else {
+//            T++;
+//        }
+//
+//    }
 }
