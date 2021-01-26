@@ -698,6 +698,57 @@ void setup()
         request->send(200, "text/plain", "OK");
     });
 
+    server.on("/setMode", HTTP_GET, [](AsyncWebServerRequest *request){
+
+        AsyncWebParameter* p = request->getParam("mode");
+
+        Serial1.print("SETMODE ");
+        Serial1.println(p->value());
+
+        request->send(200, "text/plain", p->value());
+    });
+
+    server.on("/setVal", HTTP_GET, [](AsyncWebServerRequest *request){
+
+        AsyncWebParameter* type = request->getParam("type");
+        AsyncWebParameter* val = request->getParam("val");
+
+        Serial1.print("SET"+type->value()+" ");
+        Serial1.println(val->value());
+
+        request->send(200, "text/plain", val->value());
+    });
+
+    server.on("/setCutoff", HTTP_GET, [](AsyncWebServerRequest *request){
+
+        AsyncWebParameter* val = request->getParam("val");
+
+        Serial1.print("SETCUTOFF ");
+        Serial1.println(val->value());
+
+        request->send(200, "text/plain", val->value());
+    });
+
+    server.on("/setBeep", HTTP_GET, [](AsyncWebServerRequest *request){
+
+        AsyncWebParameter* val = request->getParam("val");
+
+        Serial1.print("SETBEEP ");
+        Serial1.println(val->value());
+
+        request->send(200, "text/plain", val->value());
+    });
+
+    server.on("/setPLimit", HTTP_GET, [](AsyncWebServerRequest *request){
+
+        AsyncWebParameter* val = request->getParam("val");
+
+        Serial1.print("SETPLIMIT ");
+        Serial1.println(val->value());
+
+        request->send(200, "text/plain", val->value());
+    });
+
         server.onNotFound([](AsyncWebServerRequest * request)
                       {
                           Serial.print(F("NOT_FOUND: "));

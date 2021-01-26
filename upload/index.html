@@ -32,6 +32,7 @@
     <link href="remote.css" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="jquery.bootstrap-touchspin.min.css">
   </head>
   <body>
     
@@ -66,8 +67,13 @@
           <span id="span_set_setpoint">---</span>
         </div>
         <div class="col">
-          <strong>Лимит: </strong>
+          <strong>Отсечка: </strong>
           <span id="span_set_cutoff">---</span>
+        </div>
+        <div class="col">
+          <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#settingsModal">
+            Настройки
+          </button>
         </div>
       </div>
     </li>
@@ -108,6 +114,94 @@
   </main>
 </div>
 
+<div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="settingsModalLabel">Настройки</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="javascript:;">
+          <div class="form-group row">
+            <label for="inputMode" class="col-sm-2 col-form-label">Режим</label>
+            <div class="col-sm-10">
+              <select id="inputMode" class="form-control form-control-sm">
+                <option value="CC">Пост. ток</option>
+                <option value="CR">Пост. сопротивление</option>
+                <option value="CV">Пост. напряжение</option>
+                <option value="CP">Пост. мощность</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="divI" class="form-group row divConst">
+            <label for="inputI" class="col-sm-2 col-form-label">Ток</label>
+            <div class="col-sm-10">
+              <input type="text" id="inputI" data-val="I" class="form-control form-control-sm input-sm inputVal">
+            </div>
+          </div>
+
+          <div id="divV" class="form-group row divConst d-none">
+            <label for="inputV" class="col-sm-2 col-form-label">Напряжение</label>
+            <div class="col-sm-10">
+              <input type="text" id="inputV" data-val="V" class="form-control form-control-sm input-sm inputVal">
+            </div>
+          </div>
+
+          <div id="divR" class="form-group row divConst d-none">
+            <label for="inputR" class="col-sm-2 col-form-label">Сопротивление</label>
+            <div class="col-sm-10">
+              <input type="text" id="inputR" data-val="R" class="form-control form-control-sm input-sm inputVal">
+            </div>
+          </div>
+
+          <div id="divP" class="form-group row divConst d-none">
+            <label for="inputP" class="col-sm-2 col-form-label">Мощность</label>
+            <div class="col-sm-10">
+              <input type="text" id="inputP" data-val="P" class="form-control form-control-sm input-sm inputVal">
+            </div>
+          </div>
+
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" value="" id="checkCutoff">
+            <label class="form-check-label" for="checkCutoff">
+              Отсечка по напряжению
+            </label>
+          </div>
+
+          <div id="divCutoff" class="form-group row d-none">
+            <label for="inputCutoff" class="col-sm-2 col-form-label">Напряжение</label>
+            <div class="col-sm-10">
+              <input type="text" id="inputCutoff" class="form-control form-control-sm input-sm">
+            </div>
+          </div>
+
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" value="" id="checkBeep">
+            <label class="form-check-label" for="checkBeep">
+              Бипер
+            </label>
+          </div>
+
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="checkPLimit">
+            <label class="form-check-label" for="checkPLimit">
+              Ограничивать мощность
+            </label>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+<!--        <button type="button" class="btn btn-primary">Save changes</button>-->
+      </div>
+    </div>
+  </div>
+</div>
 
 <!--<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>-->
 <script>window.$ || document.write('<script src="./jquery.min.js"><\/script>')</script>
@@ -116,35 +210,232 @@
 
 <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
-<script src="remote.js"></script>
+<script src="jquery.bootstrap-touchspin.min.js"></script>
 
 <script>
+  let Settings = {};
+  let Point = {};
+
+  $("#inputI").TouchSpin({
+    min: 0.2,
+    max: 10,
+    step: 0.01,
+    decimals: 2,
+    boostat: 5,
+    maxboostedstep: 10,
+    postfix: 'А'
+  });
+
+  $("#inputV").TouchSpin({
+    min: 0.5,
+    max: 30,
+    step: 0.01,
+    decimals: 2,
+    boostat: 5,
+    maxboostedstep: 10,
+    postfix: 'В'
+  });
+
+  $("#inputR").TouchSpin({
+    min: 0.01,
+    max: 15,
+    step: 0.01,
+    decimals: 2,
+    boostat: 5,
+    maxboostedstep: 10,
+    postfix: 'Ом'
+  });
+
+  $("#inputP").TouchSpin({
+    min: 0,
+    max: 60,
+    step: 0.01,
+    decimals: 2,
+    boostat: 5,
+    maxboostedstep: 10,
+    postfix: 'Вт'
+  });
+
+  $("#inputCutoff").TouchSpin({
+    min: 0.5,
+    max: 30,
+    step: 0.01,
+    decimals: 2,
+    boostat: 5,
+    maxboostedstep: 10,
+    postfix: 'В'
+  });
+
+  function showConstDivs(mode) {
+    $('.divConst').addClass('d-none');
+
+    switch (mode) {
+      case 'CC':
+        $('#divI').removeClass('d-none');
+        break;
+      case 'CR':
+        $('#divR').removeClass('d-none');
+        break;
+      case 'CV':
+        $('#divV').removeClass('d-none');
+        break;
+      case 'CP':
+        $('#divP').removeClass('d-none');
+        break;
+    }
+  }
+
+  $('#inputMode').change(function () {
+    const mode = $(this).val();
+
+    $.get("/setMode?mode="+mode, function(data) {
+      console.log('Change mode: ' + data);
+
+      showConstDivs(mode);
+    })
+  })
+
+  let wto;
+
+  $('.inputVal').change(function() {
+    const val = $(this).val();
+    const type = $(this).data('val');
+
+    clearTimeout(wto);
+    wto = setTimeout(function() {
+      $.get("/setVal?type="+type+"&val="+val*1000, function(data) {
+        console.log('SET' + type + ': ' + data);
+      })
+    }, 500);
+  });
+
+  $('#checkCutoff').change(function () {
+    if ($(this).prop('checked')) {
+      $('#divCutoff').removeClass('d-none');
+
+      const val = $('#inputCutoff').val();
+
+      if (val !== undefined) {
+        clearTimeout(wto);
+        wto = setTimeout(function() {
+          $.get("/setCutoff?val="+val*1000, function(data) {
+            console.log('SETCUTOFF: ' + data);
+          })
+        }, 500);
+      }
+    }
+    else {
+      $('#divCutoff').addClass('d-none');
+
+      clearTimeout(wto);
+      wto = setTimeout(function() {
+        $.get("/setCutoff?val=OFF", function(data) {
+          console.log('SETCUTOFF: ' + data);
+        })
+      }, 500);
+    }
+  })
+
+  $('#inputCutoff').change(function () {
+    const val = $(this).val();
+
+    clearTimeout(wto);
+    wto = setTimeout(function() {
+      $.get("/setCutoff?val="+val*1000, function(data) {
+        console.log('SETCUTOFF: ' + data);
+      })
+    }, 500);
+  })
+
+  $('#checkBeep').change(function () {
+    let val;
+
+    if ($(this).is( ":checked" )) {
+      val = 'ON';
+    }
+    else {
+      val = 'OFF';
+    }
+
+    clearTimeout(wto);
+    wto = setTimeout(function() {
+      $.get("/setBeep?val="+val, function(data) {
+        console.log('SETBEEP: ' + data);
+      })
+    }, 500);
+  })
+
+  $('#checkPLimit').change(function () {
+    let val;
+
+    if ($(this).is( ":checked" )) {
+      val = 'LIMIT';
+    }
+    else {
+      val = 'NOLIMIT';
+    }
+
+    clearTimeout(wto);
+    wto = setTimeout(function() {
+      $.get("/setPLimit?val="+val, function(data) {
+        console.log('SETPLIMIT: ' + data);
+      })
+    }, 500);
+  })
+
+
   function loadSettings() {
     $.get( "/getState", function( data ) {
       console.log(data);
 
-      const settings = data.settings;
-      const point = data.point;
+      Settings = data.settings;
+      Point = data.point;
 
       let modeText;
       let setpointDim;
 
-      switch (settings.mode) {
+      let setpoint = Settings.setpoint/1000;
+
+      switch (Settings.mode) {
         case "CC":
           modeText = "Пост. ток";
           setpointDim = "А";
+          if ($('#inputMode').val() != 'CC') {
+            $('#inputMode').val('CC');
+            showConstDivs('CC');
+          }
+          if (!$('#inputI').is(":visible"))
+            $('#inputI').val(setpoint);
           break;
         case "CR":
           modeText = "Пост. сопр.";
           setpointDim = "Ом";
+          if ($('#inputMode').val() != 'CR') {
+            $('#inputMode').val('CR');
+            showConstDivs('CR');
+          }
+          if (!$('#inputR').is(":visible"))
+            $('#inputR').val(setpoint);
           break;
         case "CV":
           modeText = "Пост. напр.";
           setpointDim = "В";
+          if ($('#inputMode').val() != 'CV') {
+            $('#inputMode').val('CV');
+            showConstDivs('CV');
+          }
+          if (!$('#inputV').is(":visible"))
+            $('#inputV').val(setpoint);
           break;
         case "CW":
           modeText = "Пост. мощность";
           setpointDim = "Вт";
+          if ($('#inputMode').val() != 'CP') {
+            $('#inputMode').val('CP');
+            showConstDivs('CP');
+          }
+          if (!$('#inputP').is(":visible"))
+            $('#inputP').val(setpoint);
           break;
         default:
           modeText = '---';
@@ -153,16 +444,60 @@
       }
 
       $('#span_set_mode').text(modeText);
-      $('#span_set_setpoint').text(settings.setpoint/1000 + ' ' + setpointDim);
-      $('#span_set_cutoff').text(settings.cutoff_enabled ? 'Вкл (' + settings.cutoff_voltage/1000 + ' В)' : 'Выкл');
+      $('#span_set_setpoint').text(setpoint + ' ' + setpointDim);
+      $('#span_set_cutoff').text(Settings.cutoff_enabled ? 'Вкл (' + Settings.cutoff_voltage/1000 + ' В)' : 'Выкл');
 
-      $('#span_point_isActive').text(point.isActive ? 'Активно' : 'Стоп');
-      $('#span_point_vS').text((point.vS/1000).toFixed(3));
-      $('#span_point_Ah').text((point.mAs/1000/60/60).toFixed(3));
-      $('#span_point_Wh').text((point.mWs/1000/60/60).toFixed(3));
-      $('#span_point_iSet').text((point.iSet/1000).toFixed(2));
-      $('#span_point_temp').text((point.temp/10).toFixed(1));
-      $('#span_point_v12').text((point.v12/1000).toFixed(2));
+      const $checkCutoff = $('#checkCutoff');
+      const $inputCutoff = $('#inputCutoff');
+
+      if (!$checkCutoff.is(":visible")) {
+        if (Settings.cutoff_enabled) {
+          if (!$checkCutoff.is( ":checked" )) {
+            $checkCutoff.prop('checked', 'checked');
+            $('#divCutoff').removeClass('d-none');
+          }
+        }
+        else {
+          $checkCutoff.removeProp('checked');
+          $('#divCutoff').addClass('d-none');
+        }
+      }
+
+      if ((!$inputCutoff.is(":visible")) || ($inputCutoff.val() === undefined))
+        if (Settings.cutoff_enabled)
+          $inputCutoff.val(Settings.cutoff_voltage/1000);
+
+      const $checkBeep = $('#checkBeep');
+      if (!$checkBeep.is(":visible")) {
+        if (Settings.beeper_enabled) {
+          if (!$checkBeep.is( ":checked" )) {
+            $checkBeep.prop('checked', 'checked');
+          }
+        }
+        else {
+          $checkBeep.removeProp('checked');
+        }
+      }
+
+      const $checkPLimit = $('#checkPLimit');
+      if (!$checkPLimit.is(":visible")) {
+        if (Settings.max_power_action) {
+          if (!$checkPLimit.is( ":checked" )) {
+            $checkPLimit.prop('checked', 'checked');
+          }
+        }
+        else {
+          $checkPLimit.removeProp('checked');
+        }
+      }
+
+      $('#span_point_isActive').text(Point.isActive ? 'Активно' : 'Стоп');
+      $('#span_point_vS').text((Point.vS/1000).toFixed(3));
+      $('#span_point_Ah').text((Point.mAs/1000/60/60).toFixed(3));
+      $('#span_point_Wh').text((Point.mWs/1000/60/60).toFixed(3));
+      $('#span_point_iSet').text((Point.iSet/1000).toFixed(2));
+      $('#span_point_temp').text((Point.temp/10).toFixed(1));
+      $('#span_point_v12').text((Point.v12/1000).toFixed(2));
 
     });
   }
