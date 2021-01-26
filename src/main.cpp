@@ -31,7 +31,7 @@ WiFiMulti wifiMulti;
 #include "Timestamp.h"
 #include "LoadRx.h"
 
-
+LoadState State;
 
 // The library will be depreciated after being merged to future major Arduino esp32 core release 2.x
 // At that time, just remove this library inclusion
@@ -150,6 +150,10 @@ IPAddress APStaticGW  = IPAddress(192, 168, 100, 1);
 IPAddress APStaticSN  = IPAddress(255, 255, 255, 0);
 
 #include <ESPAsync_WiFiManager.h>              //https://github.com/khoih-prog/ESPAsync_WiFiManager
+#include <AsyncJson.h>
+
+//#define ARDUINOJSON_EMBEDDED_MODE 1
+#include "ArduinoJson.h"
 
 String host = "async-esp32fs";
 
@@ -649,7 +653,52 @@ void setup()
     server.addHandler(new SPIFFSEditor(FileFS, http_username, http_password));
     server.serveStatic("/", FileFS, "/").setDefaultFile("index.html");
 
-    server.onNotFound([](AsyncWebServerRequest * request)
+    server.on("/getState", HTTP_GET, [](AsyncWebServerRequest *request){
+        StaticJsonDocument<1024> doc;
+
+        JsonObject settings = doc.createNestedObject("settings");
+        settings["t"] = State.settings.t;
+        settings["mode"] = State.settings.mode;
+        settings["setpoint"] = State.settings.setpoint;
+        settings["beeper_enabled"] = State.settings.beeper_enabled;
+        settings["cutoff_enabled"] = State.settings.cutoff_enabled;
+        settings["cutoff_voltage"] = State.settings.cutoff_voltage;
+        settings["current_limit"] = State.settings.current_limit;
+        settings["max_power_action"] = State.settings.max_power_action;
+
+        JsonObject point = doc.createNestedObject("point");
+        point["t"] = State.point.t;
+        point["isActive"] = State.point.isActive;
+        point["reg"] = State.point.reg;
+        point["temp"] = State.point.temp;
+        point["v12"] = State.point.v12;
+        point["vL"] = State.point.vL;
+        point["vS"] = State.point.vS;
+        point["iSet"] = State.point.iSet;
+        point["mWs"] = State.point.mWs;
+        point["mAs"] = State.point.mAs;
+
+
+        String output;
+        serializeJson(doc, output);
+
+        request->send(200, "application/json", output);
+    });
+
+    server.on("/loadOn", HTTP_GET, [](AsyncWebServerRequest *request){
+        Serial1.println("LOAD ON");
+        Serial1.println("LOAD ON");
+        Serial1.println("LOAD ON");
+        Serial1.println("LOAD ON");
+        request->send(200, "text/plain", "OK");
+    });
+
+    server.on("/loadOff", HTTP_GET, [](AsyncWebServerRequest *request){
+        Serial1.println("LOAD OFF");
+        request->send(200, "text/plain", "OK");
+    });
+
+        server.onNotFound([](AsyncWebServerRequest * request)
                       {
                           Serial.print(F("NOT_FOUND: "));
 
@@ -772,8 +821,6 @@ void setup()
 
 //String LoadRx;
 byte T = 0;
-
-LoadState State;
 
 void loop()
 {
