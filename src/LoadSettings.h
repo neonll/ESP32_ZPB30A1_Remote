@@ -22,6 +22,8 @@ public:
 
     void fill(const String& str);
     void request(HardwareSerial &Serial);
+
+    void printSerial(HardwareSerial &serial) const;
 };
 
 

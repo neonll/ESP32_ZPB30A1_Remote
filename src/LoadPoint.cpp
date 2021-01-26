@@ -24,6 +24,9 @@ void LoadPoint::fill(const String& str) {
 }
 
 void LoadPoint::printSerial(HardwareSerial &serial) const {
+    serial.print("Timestamp: ");
+    serial.println(this->t);
+
     serial.print("Active: ");
     serial.println(this->isActive ? "Active" : "Inactive");
 

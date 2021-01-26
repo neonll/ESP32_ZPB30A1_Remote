@@ -18,6 +18,34 @@ void LoadSettings::fill(const String &str) {
 }
 
 void LoadSettings::request(HardwareSerial &Serial) {
-    Serial.write("GETS");
+    Serial.println("GETS");
 
 }
+
+void LoadSettings::printSerial(HardwareSerial &serial) const {
+    serial.print("Timestamp: ");
+    serial.println(this->t);
+
+    serial.print("Mode: ");
+    serial.println(this->mode);
+
+    serial.print("Setpoint: ");
+    serial.println(this->setpoint);
+
+    serial.print("Beeper: ");
+    serial.println(this->beeper_enabled ? "Enabled" : "Disabled");
+
+    serial.print("Cutoff: ");
+    serial.println(this->cutoff_enabled ? "Enabled" : "Disabled");
+
+    serial.print("Cutoff voltage: ");
+    serial.println(this->cutoff_voltage);
+
+    serial.print("Current Limit: ");
+    serial.println(this->current_limit);
+
+    serial.print("Power limit: ");
+    serial.println(this->max_power_action ? "Enabled" : "Disabled");
+
+}
+

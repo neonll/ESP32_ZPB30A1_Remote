@@ -27,7 +27,9 @@ public:
 
     void setValue(String &data);
     String getValue();
-    void process(LoadState &state, String &data);
+    void fillState(LoadState &state, String &data);
+    void process(HardwareSerial &Serial, LoadState &state);
+
 
 
 };

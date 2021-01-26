@@ -22,14 +22,14 @@ void LoadRx::recognise() {
         this->type = LOAD_RX_SETTINGS;
     }
     // TODO: change space to comma after flashing
-    else if (((data[0] == 'A') || (data[0] == 'U') || (data[0] == 'N')) && (data[3] == ' ') && (data[3] == ',')) {
+    else if (((data[0] == 'A') || (data[0] == 'U') || (data[0] == 'N')) && (data[1] == ' ') && (data[3] == ',')) {
         // point string
         this->type = LOAD_RX_POINT;
     }
 
 }
 
-void LoadRx::process(LoadState &state, String &data) {
+void LoadRx::fillState(LoadState &state, String &data) {
     setValue(data);
     this->recognise();
 
@@ -44,4 +44,10 @@ void LoadRx::process(LoadState &state, String &data) {
             // DO NOTHING
             break;
     }
+}
+
+void LoadRx::process(HardwareSerial &Serial, LoadState &state) {
+    String str = Serial.readStringUntil('\n');
+
+    fillState(state, str);
 }

@@ -29,6 +29,7 @@ WiFiMulti wifiMulti;
 #include "LoadPoint.h"
 #include "LoadState.h"
 #include "Timestamp.h"
+#include "LoadRx.h"
 
 
 
@@ -759,8 +760,6 @@ void setup()
 
     digitalWrite(LED_BUILTIN, LED_OFF);
 
-//    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-//    printLocalTime();
     Timestamp t;
     t.init();
 
@@ -771,40 +770,40 @@ void setup()
 
 }
 
-String LoadRx;
+//String LoadRx;
 byte T = 0;
 
 LoadState State;
 
 void loop()
 {
-//    check_status();
+    check_status();
 
-    delay(1000);
-    Serial.println(millis());
-    Serial.println(timestamp());
-//    Serial.println(time());
+    while (Serial1.available()) {
 
-//
-//    while (Serial1.available()) {
-//
 //        LoadRx = Serial1.readStringUntil('\n');
-//
-//        if (T == 10) {
-////            LoadPoint currentState{};
-//
-//            Serial.println(LoadRx);
-//
-////            currentState.fill(LoadRx);
-////            currentState.printSerial(Serial);
-//
-//            State.point.fill(LoadRx);
-//            State.point.printSerial(Serial);
-//
-//            T = 0;
-//        } else {
-//            T++;
-//        }
-//
-//    }
+
+        LoadRx loadRx;
+
+        loadRx.process(Serial1, State);
+//        Serial.println(loadRx.getValue());
+
+        if (T == 5) {
+            Serial.print(timestamp());
+            Serial.println(": Settings");
+            State.settings.printSerial(Serial);
+            T++;
+        }
+        if (T == 10) {
+            State.settings.request(Serial1);
+            Serial.print(timestamp());
+            Serial.println(": Point");
+            State.point.printSerial(Serial);
+
+            T = 0;
+        } else {
+            T++;
+        }
+
+    }
 }
