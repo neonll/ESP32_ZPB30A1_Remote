@@ -872,6 +872,39 @@ void setup()
 
 //String LoadRx;
 byte T = 0;
+unsigned long lastW = 0;
+bool logStarted = false;
+File file;
+
+void logStart() {
+    String filepath = "/" + String(timestamp()) + ".csv";
+
+    file = FileFS.open(filepath, "w");
+//    LOGERROR(F("SaveLogFile "));
+
+    logStarted = true;
+    Serial.println("Started new log: " + filepath);
+}
+
+void logWrite() {
+    file.println(String(State.point.t) + ","
+            + String(State.point.reg) + ","
+            + String(State.point.temp) + ","
+            + String(State.point.v12) + ","
+            + String(State.point.vL) + ","
+            + String(State.point.vS) + ","
+            + String(State.point.iSet) + ","
+            + String(State.point.mWs) + ","
+            + String(State.point.mAs));
+
+    lastW = State.point.t;
+}
+
+void logClose() {
+    file.close();
+    logStarted = false;
+    Serial.println("Log closed.");
+}
 
 void loop()
 {
@@ -886,17 +919,33 @@ void loop()
         loadRx.process(Serial1, State);
 //        Serial.println(loadRx.getValue());
 
+        if (State.point.isActive) {
+            if (State.point.t - lastW >= 15) {
+                if (logStarted) {
+                    logWrite();
+                }
+                else {
+                    logStart();
+                    logWrite();
+                }
+            }
+        }
+        else if (State.point.temp > 0) {
+            if (logStarted)
+                logClose();
+        }
+
         if (T == 5) {
-            Serial.print(timestamp());
-            Serial.println(": Settings");
-            State.settings.printSerial(Serial);
+//            Serial.print(timestamp());
+//            Serial.println(": Settings");
+//            State.settings.printSerial(Serial);
             T++;
         }
         if (T == 10) {
             State.settings.request(Serial1);
-            Serial.print(timestamp());
-            Serial.println(": Point");
-            State.point.printSerial(Serial);
+//            Serial.print(timestamp());
+//            Serial.println(": Point");
+//            State.point.printSerial(Serial);
 
             T = 0;
         } else {
