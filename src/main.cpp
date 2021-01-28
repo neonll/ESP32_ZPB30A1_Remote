@@ -154,6 +154,7 @@ IPAddress APStaticSN  = IPAddress(255, 255, 255, 0);
 
 //#define ARDUINOJSON_EMBEDDED_MODE 1
 #include "ArduinoJson.h"
+#include "ParseString.h"
 
 String host = "async-esp32fs";
 
@@ -448,6 +449,63 @@ void saveConfigData()
     }
 }
 
+void listFilesInDir(File dir, int numTabs = 1);
+
+String listLogFiles();
+
+
+void listFilesInDir(File dir, int numTabs) {
+    while (true) {
+
+        File entry =  dir.openNextFile();
+        if (! entry) {
+            // no more files in the folder
+            break;
+        }
+        for (uint8_t i = 0; i < numTabs; i++) {
+            Serial.print('\t');
+        }
+        Serial.print(entry.name());
+        if (entry.isDirectory()) {
+            Serial.println("/");
+            listFilesInDir(entry, numTabs + 1);
+        } else {
+            // display zise for file, nothing for directory
+            Serial.print("\t\t");
+            Serial.println(entry.size(), DEC);
+        }
+        entry.close();
+    }
+}
+
+String listLogFiles() {
+    File dir = FileFS.open("/");
+
+    String list;
+
+    while (true) {
+
+        File entry =  dir.openNextFile();
+        if (! entry) {
+            // no more files in the folder
+            break;
+        }
+
+        if (ParseString::getValue(entry.name(), '.', 1) == "csv") {
+//            list[i] = entry.name();
+//            i++;
+//            Serial.println(entry.name());
+            list += entry.name();
+            list += ",";
+        }
+
+        entry.close();
+    }
+
+    return list;
+}
+
+
 void setup()
 {
     //set led pin as output
@@ -685,6 +743,10 @@ void setup()
         request->send(200, "application/json", output);
     });
 
+    server.on("/getLogs", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(200, "text/plain", listLogFiles());
+    });
+
     server.on("/loadOn", HTTP_GET, [](AsyncWebServerRequest *request){
         Serial1.println("LOAD ON");
         Serial1.println("LOAD ON");
@@ -867,6 +929,27 @@ void setup()
 
 //    WiFi.disconnect(true);
 //    WiFi.mode(WIFI_OFF);
+
+//    unsigned int totalBytes = FileFS.totalBytes();
+//    unsigned int usedBytes = FileFS.usedBytes();
+//
+//    Serial.println("===== File system info =====");
+//
+//    Serial.print("Total space:      ");
+//    Serial.print(totalBytes);
+//    Serial.println("byte");
+//
+//    Serial.print("Total space used: ");
+//    Serial.print(usedBytes);
+//    Serial.println("byte");
+//
+//    Serial.println();
+
+//    // Open dir folder
+//    File dir = FileFS.open("/");
+//    // List file at root
+//    listFilesInDir(dir);
+
 
 }
 
