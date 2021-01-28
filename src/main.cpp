@@ -958,33 +958,46 @@ byte T = 0;
 unsigned long lastW = 0;
 bool logStarted = false;
 File file;
+String filepath;
 
 void logStart() {
-    String filepath = "/" + String(timestamp()) + ".csv";
+    filepath = "/" + String(timestamp()) + ".csv";
 
     file = FileFS.open(filepath, "w");
 //    LOGERROR(F("SaveLogFile "));
+
+    file.println("Time,Reg,Temp,V12,VLoad,VSensor,ISet,mWs,mAs");
+
+    file.close();
 
     logStarted = true;
     Serial.println("Started new log: " + filepath);
 }
 
 void logWrite() {
-    file.println(String(State.point.t) + ","
-            + String(State.point.reg) + ","
-            + String(State.point.temp) + ","
-            + String(State.point.v12) + ","
-            + String(State.point.vL) + ","
-            + String(State.point.vS) + ","
-            + String(State.point.iSet) + ","
-            + String(State.point.mWs) + ","
-            + String(State.point.mAs));
+    if (State.point.temp > 0) {
+        file = FileFS.open(filepath, "a");
 
-    lastW = State.point.t;
+        file.println(String(State.point.t*1000) + ","
+                     + String(State.point.reg) + ","
+                     + String(State.point.temp) + ","
+                     + String(State.point.v12) + ","
+                     + String(State.point.vL) + ","
+                     + String(State.point.vS) + ","
+                     + String(State.point.iSet) + ","
+                     + String(State.point.mWs) + ","
+                     + String(State.point.mAs));
+
+        file.close();
+
+        lastW = State.point.t;
+    }
+
+    Serial.println(filepath);
 }
 
 void logClose() {
-    file.close();
+//    file.close();
     logStarted = false;
     Serial.println("Log closed.");
 }
@@ -1011,6 +1024,7 @@ void loop()
                     logStart();
                     logWrite();
                 }
+
             }
         }
         else if (State.point.temp > 0) {
