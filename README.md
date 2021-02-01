@@ -14,6 +14,11 @@ This repository uses majestic [ESPAsync_WiFiManager](https://github.com/khoih-pr
 
 Also you need my fork of [ZPB30A1 Firmware](https://github.com/neonll/ZPB30A1_Firmware) that implements another log format and several new remote commands.
 
+## Hardware
+* You may use either ESP32 Dev Board or make your own board that fits original device without any additional wires.
+* If you want to make such board you may use files from `hardware` dir.
+  ![board view](https://raw.githubusercontent.com/neonll/ESP32_ZPB30A1_Remote/master/hardware/esp32_remote_board.png)
+
 ## Installation
 Just clone this repository in PlatformIO.
 After ESP32 flashing you can visit http://your-esp32-ip/edit `(user: admin, password: admin)` to upload files stored in `/upload` folder.
