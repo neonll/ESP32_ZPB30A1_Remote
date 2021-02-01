@@ -16,7 +16,7 @@ Also you need my fork of [ZPB30A1 Firmware](https://github.com/neonll/ZPB30A1_Fi
 
 ## Hardware
 * You may use either ESP32 Dev Board or make your own board that fits original device without any additional wires.
-* If you want to make such board you may use files from `hardware` dir.
+* If you want to make such board fell free to use files from `hardware` dir.
   ![board view](https://raw.githubusercontent.com/neonll/ESP32_ZPB30A1_Remote/master/hardware/esp32_remote_board.png)
 
 ## Installation
@@ -26,7 +26,7 @@ After ESP32 flashing you can visit http://your-esp32-ip/edit `(user: admin, pass
 ## Some notes
 * Web interface is in russian. Please ask if you need it in english.
 * Old log files can be deleted using ESP32 Web Server file manager `/edit`.
-* Communication with ZPB30A1 uses 16 and 17 pins of ESP32. Connection scheme and circuit board diagram will be published soon.
+* ~~Communication with ZPB30A1 uses 16 and 17 pins of ESP32. Connection scheme and circuit board diagram will be published soon.~~
 
 ## Contributing
 If you want to contribute to this project:
